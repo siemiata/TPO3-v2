@@ -15,7 +15,7 @@ public class NewsServer extends JFrame {
     private JButton reloadButton;
 
     public NewsServer() {
-        super("Forum App");
+        super("NEWS SERVER");
         setLayout(new FlowLayout());
         setSize(400, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -90,6 +90,7 @@ public class NewsServer extends JFrame {
                 String selectedTopic = (String) topicComboBox.getSelectedItem();
                 System.out.println("Selected topic: " + selectedTopic);
                 deleteTxtFile("NewsData/" + selectedTopic);
+                reload();
             }
         });
         removeTopicFrame.add(topicComboBox);
@@ -107,13 +108,10 @@ public class NewsServer extends JFrame {
         String fileTitle;
         fileTitle = title;
         try {
-            // Tworzenie folderu, jeśli nie istnieje
             File folder = new File("NewsData");
             if (!folder.exists()) {
                 folder.mkdir();
             }
-
-            // Tworzenie pliku i zapisanie do niego zawartości
             File file = new File("NewsData/" + fileTitle + ".txt");
             FileWriter writer = new FileWriter(file, true);
             writer.write(title + ":" + fullText + "\n");
@@ -138,14 +136,11 @@ public class NewsServer extends JFrame {
         File file = new File(filePath);
         if (file.exists() && file.isFile()) {
             file.delete();
-            System.out.println("Plik " + filePath + " został usunięty.");
+            System.out.println("File " + filePath + " has been deleted.");
         } else {
-            System.out.println("Nie można usunąć pliku " + filePath + ". Plik nie istnieje lub nie jest plikiem.");
+            System.out.println("Cannot delete file " + filePath + ". File is not exist.");
         }
     }
-
-
-
     public static void main(String[] args) {
             NewsServer mainFrame = new NewsServer();
             mainFrame.setVisible(true);
