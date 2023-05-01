@@ -2,9 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class NewsServer extends JFrame {
     private JButton addTopicButton;
     private JButton removeTopicButton;
     private JButton reloadButton;
+    private JButton openServer;
 
     public NewsServer() {
         super("NEWS SERVER");
@@ -25,6 +27,17 @@ public class NewsServer extends JFrame {
 
         addTopicButton = new JButton("ADD TOPIC");
         add(addTopicButton);
+
+        openServer = new JButton("UPDATE :)");
+        add(openServer);
+
+        openServer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendString("testowa wiadomość");
+                System.out.println("TEST");;
+            }
+        });
         addTopicButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -139,6 +152,23 @@ public class NewsServer extends JFrame {
             System.out.println("File " + filePath + " has been deleted.");
         } else {
             System.out.println("Cannot delete file " + filePath + ". File is not exist.");
+        }
+    }
+
+    public void sendString(String message) {
+        try {
+            Socket socket = new Socket("localhost", 5000);
+            OutputStream output = socket.getOutputStream();
+            PrintWriter writer = new PrintWriter(output, true);
+            writer.println(message);
+            writer.close();
+            output.close();
+            socket.close();
+
+        } catch (UnknownHostException ex) {
+            System.out.println("Server not found: " + ex.getMessage());
+        } catch (IOException ex) {
+            System.out.println("I/O error: " + ex.getMessage());
         }
     }
     public static void main(String[] args) {
