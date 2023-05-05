@@ -85,9 +85,8 @@ public class NioServer {
         String message = new String(buffer.array()).trim();
         System.out.println("Message received from client: " + message);
 
-        // Check if client wants to get the HashMap
+
         if (message.equalsIgnoreCase("getHashMap")) {
-            // Convert the HashMap to a string and send it to the client
             String hashMapAsString = hashMap.toString();
             ByteBuffer responseBuffer = ByteBuffer.wrap(hashMapAsString.getBytes());
             clientSocketChannel.register(selectionKey.selector(), SelectionKey.OP_WRITE, responseBuffer);
@@ -106,8 +105,8 @@ public class NioServer {
 
     public static void reciveData() throws IOException, ClassNotFoundException {
         Socket socket = null;
-        String host = "localhost"; // adres IP lub nazwa hosta serwera
-        int port = 8080; // numer portu, na którym działa serwer
+        String host = "localhost";
+        int port = 8080;
 
         try {
             socket = new Socket(host, port);
@@ -122,12 +121,9 @@ public class NioServer {
 
         InputStream in = socket.getInputStream();
         ObjectInputStream ois = new ObjectInputStream(in);
-
-        // Pobranie hashmapy od serwera
         hashMap = (HashMap<String, String>) ois.readObject();
-
-        // Wyświetlenie zawartości hashmapy
         System.out.println("HashMap:");
+
         for (String key : hashMap.keySet()) {
             System.out.println(key + " = " + hashMap.get(key));
         }

@@ -214,7 +214,6 @@ public class NewsServer extends JFrame {
         }
     }
 
-
     public static void main(String[] args) {
             NewsServer mainFrame = new NewsServer();
             mainFrame.setVisible(true);
