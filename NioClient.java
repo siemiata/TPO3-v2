@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -8,9 +9,10 @@ import java.util.Map;
 public class NioClient {
     private static final int BUFFER_SIZE = 1024;
     private static final int SERVER_PORT = 9999;
+    static Map<String, String> mojaMapa;
 
     public static void main(String[] args) {
-
+        gui();
     }
 
     public static void connect(){
@@ -23,7 +25,7 @@ public class NioClient {
             ByteBuffer responseBuffer = ByteBuffer.allocate(BUFFER_SIZE);
             int bytesRead = socketChannel.read(responseBuffer);
             String hashMapAsString = new String(responseBuffer.array(), 0, bytesRead).trim();
-            Map<String, String> mojaMapa = new HashMap<>();
+            mojaMapa = new HashMap<>();
             String[] keyValuePairs = hashMapAsString.substring(1, hashMapAsString.length() - 1).split(",");
             for (String pair : keyValuePairs) {
                 String[] entry = pair.trim().split("=");
@@ -34,5 +36,40 @@ public class NioClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public static void gui(){
+        connect();
+        JFrame frame = new JFrame("ComboBox Example");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 200);
+
+        // Tworzenie panelu zawierającego ComboBox i JButton
+        JPanel panel = new JPanel();
+        JComboBox<String> comboBox = new JComboBox<>();
+        for (String key : mojaMapa.keySet()) {
+            comboBox.addItem(String.valueOf(key));
+        }
+        JButton button = new JButton("LOAD");
+        panel.add(comboBox);
+        panel.add(button);
+
+        // Tworzenie pola tekstowego
+        JTextArea textArea = new JTextArea(10, 20);
+        textArea.setEditable(false);
+
+        // Dodawanie ActionListener do przycisku LOAD
+        button.addActionListener(e -> {
+            connect();
+            String selectedKey = (String) comboBox.getSelectedItem();
+            String selectedOption = mojaMapa.get(selectedKey);
+            textArea.setText("Wybrano opcję " + selectedOption);
+        });
+
+        // Dodawanie panelu i pola tekstowego do ramki
+        frame.getContentPane().add(panel, "North");
+        frame.getContentPane().add(new JScrollPane(textArea), "Center");
+
+        // Wyświetlanie ramki
+        frame.setVisible(true);
     }
 }

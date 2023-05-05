@@ -21,8 +21,8 @@ public class NioServer {
 
     public static void main(String[] args) {
 
-        hashMap.put("A", "test1");
-        hashMap.put("B","lol");
+        hashMap.put("Test A", "test1");
+        hashMap.put("Teszt B","lol");
 
         try {
             Selector selector = Selector.open();
