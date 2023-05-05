@@ -39,7 +39,7 @@ public class NioClient {
     }
     public static void gui(){
         connect();
-        JFrame frame = new JFrame("ComboBox Example");
+        JFrame frame = new JFrame("Topic Reader");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(300, 200);
         JPanel panel = new JPanel();
