@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,11 @@ public class NewsServer extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 insertHashMap("NewsData");
-                sendString();
+                try {
+                    sendString();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
                 System.out.println("Server has been updated");;
             }
         });
@@ -157,20 +162,31 @@ public class NewsServer extends JFrame {
         }
     }
 
-    public void sendString() {
-        Socket clientSocket = null;
+    public void sendString() throws IOException {
+        ServerSocket serverSocket = null;
         try {
-            clientSocket = new Socket("localhost", 5000);
-            System.out.println("Połączono z serwerem: " + clientSocket.getInetAddress().getHostName());
-        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-            out.writeObject(hashMap);
-            System.out.println("Wysłano hashmapę do serwera.");
-            out.close();
-            clientSocket.close();
+            serverSocket = new ServerSocket(8080);
+            serverSocket.setSoTimeout(10000);
         } catch (IOException e) {
-            System.err.println("Błąd podczas wysyłania danych.");
+            System.err.println("Could not listen on port: 8080.");
+        }
+        Socket clientSocket = null;
+        System.out.println("Waiting for connection.....");
+        try {
+            clientSocket = serverSocket.accept();
+            System.out.println("Connection successful");
+        } catch (IOException e) {
+            System.err.println("Accept failed.");
             System.exit(1);
         }
+        OutputStream out = clientSocket.getOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(out);
+        oos.writeObject(hashMap);
+
+        oos.close();
+        out.close();
+        clientSocket.close();
+        serverSocket.close();
     }
 
     public static void insertHashMap(String source){

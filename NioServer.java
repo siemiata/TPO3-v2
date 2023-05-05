@@ -1,8 +1,10 @@
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -21,8 +23,13 @@ public class NioServer {
 
     public static void main(String[] args) {
 
-        hashMap.put("Test A", "test1");
-        hashMap.put("Teszt B","lol");
+        try {
+            reciveData();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         try {
             Selector selector = Selector.open();
@@ -98,17 +105,36 @@ public class NioServer {
     }
 
     public static void reciveData() throws IOException, ClassNotFoundException {
-        final int PORT = 5000;
-        ServerSocket serverSocket = new ServerSocket(PORT);
-        while (true) {
-            Socket clientSocket = serverSocket.accept();
-            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-            hashMap = (HashMap<String, String>) in.readObject();
+        Socket socket = null;
+        String host = "localhost"; // adres IP lub nazwa hosta serwera
+        int port = 8080; // numer portu, na którym działa serwer
 
-            for (String key : hashMap.keySet()) {
-                System.out.println(key + ": " + hashMap.get(key));
-            }
-            clientSocket.close();
+        try {
+            socket = new Socket(host, port);
+            System.out.println("Connected to server");
+        } catch (UnknownHostException e) {
+            System.err.println("Unknown host: " + host);
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Could not connect to server: " + host + " on port: " + port);
+            System.exit(1);
         }
+
+        InputStream in = socket.getInputStream();
+        ObjectInputStream ois = new ObjectInputStream(in);
+
+        // Pobranie hashmapy od serwera
+        hashMap = (HashMap<String, String>) ois.readObject();
+
+        // Wyświetlenie zawartości hashmapy
+        System.out.println("HashMap:");
+        for (String key : hashMap.keySet()) {
+            System.out.println(key + " = " + hashMap.get(key));
+        }
+
+        ois.close();
+        in.close();
+        socket.close();
+
     }
 }

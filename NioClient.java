@@ -42,8 +42,6 @@ public class NioClient {
         JFrame frame = new JFrame("ComboBox Example");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(300, 200);
-
-        // Tworzenie panelu zawierającego ComboBox i JButton
         JPanel panel = new JPanel();
         JComboBox<String> comboBox = new JComboBox<>();
         for (String key : mojaMapa.keySet()) {
@@ -52,24 +50,17 @@ public class NioClient {
         JButton button = new JButton("LOAD");
         panel.add(comboBox);
         panel.add(button);
-
-        // Tworzenie pola tekstowego
         JTextArea textArea = new JTextArea(10, 20);
         textArea.setEditable(false);
 
-        // Dodawanie ActionListener do przycisku LOAD
         button.addActionListener(e -> {
             connect();
             String selectedKey = (String) comboBox.getSelectedItem();
             String selectedOption = mojaMapa.get(selectedKey);
-            textArea.setText("Wybrano opcję " + selectedOption);
+            textArea.setText(selectedOption);
         });
-
-        // Dodawanie panelu i pola tekstowego do ramki
         frame.getContentPane().add(panel, "North");
         frame.getContentPane().add(new JScrollPane(textArea), "Center");
-
-        // Wyświetlanie ramki
         frame.setVisible(true);
     }
 }
