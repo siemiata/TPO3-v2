@@ -3,10 +3,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class NewsServer extends JFrame {
@@ -15,6 +14,8 @@ public class NewsServer extends JFrame {
     private JButton removeTopicButton;
     private JButton reloadButton;
     private JButton openServer;
+    public static HashMap<String, String> hashMap;
+
 
     public NewsServer() {
         super("NEWS SERVER");
@@ -34,8 +35,9 @@ public class NewsServer extends JFrame {
         openServer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendString("testowa wiadomość");
-                System.out.println("TEST");;
+                insertHashMap("NewsData");
+                sendString();
+                System.out.println("Server has been updated");;
             }
         });
         addTopicButton.addActionListener(new ActionListener() {
@@ -155,22 +157,48 @@ public class NewsServer extends JFrame {
         }
     }
 
-    public void sendString(String message) {
+    public void sendString() {
+        Socket clientSocket = null;
         try {
-            Socket socket = new Socket("localhost", 5000);
-            OutputStream output = socket.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
-            writer.println(message);
-            writer.close();
-            output.close();
-            socket.close();
-
-        } catch (UnknownHostException ex) {
-            System.out.println("Server not found: " + ex.getMessage());
-        } catch (IOException ex) {
-            System.out.println("I/O error: " + ex.getMessage());
+            clientSocket = new Socket("localhost", 5000);
+            System.out.println("Połączono z serwerem: " + clientSocket.getInetAddress().getHostName());
+        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+            out.writeObject(hashMap);
+            System.out.println("Wysłano hashmapę do serwera.");
+            out.close();
+            clientSocket.close();
+        } catch (IOException e) {
+            System.err.println("Błąd podczas wysyłania danych.");
+            System.exit(1);
         }
     }
+
+    public static void insertHashMap(String source){
+        File folder = new File(source);
+        hashMap = new HashMap<>();
+        File[] files = folder.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".txt");
+            }
+        });
+
+        for (File file : files) {
+            String fileName = file.getName();
+            StringBuilder contentsBuilder = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    contentsBuilder.append(line).append("\n");
+                }
+                hashMap.put(fileName, contentsBuilder.toString());
+            } catch (IOException e) {
+                System.err.println("Błąd podczas czytania pliku: " + fileName);
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     public static void main(String[] args) {
             NewsServer mainFrame = new NewsServer();
             mainFrame.setVisible(true);
